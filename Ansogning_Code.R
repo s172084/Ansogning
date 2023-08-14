@@ -21,44 +21,69 @@ gravier_clean <- gravier_not_dirty %>%
 gravier_clean 
 View(gravier_clean)
 
+set.seed(101)
+
+# Choose 100 random genes. 
+gravier_new_clean <- gravier_clean %>%
+  select(1, sample(colnames(.)[-1], 100))
+
+gravier_new_clean
+
+# (Find Info about these)
+dim(gravier_new_clean)
+glimpse(gravier_new_clean)
+
+
+
 # From clean data, transform to long format. 
-gravier_long <- pivot_longer( data = gravier_clean,
-                                   cols = ! starts_with("o"),
-                                   names_to = "gene")
+head(gravier_new_clean)
+
+gravier_long <- gravier_new_clean %>% 
+                 pivot_longer(
+                cols = ! starts_with("outcome"),
+                names_to = "gene", 
+                values_to = "log2_expr_level")
 
 
 gravier_long
-
-# Choose 100 random genes. 
-gravier_long_s <- sample_n(gravier_long,100)
-gravier_long_s 
-
-gravier_long_sren <- rename(gravier_long_s ,log2_expr_level = value)
-gravier_long_sren
+head(gravier_long)
 
 
-# Fit a logistic regression to each gene, modelling: “outcome ~ log2_expr_lvl”
-# *** Its correct until here... (Sleep)***
-
-gravier_data_nested <-gravier_data_nested %>%
-  mutate(model = map(data, ~ glm(outcome ~ log2_expr_level,
-                                 gravier_data_nested
-                                 data = .,
-                                 family = binomial(link = "logit"))))
-
-gravier_data_nested <- gravier_data_nested %>%
-  # for each model, generate tidy data with estimate, std.error, statistic, p-value
-  mutate(tidied_model = map(model, tidy, conf.int = TRUE)) %>% # take the tidied model out of a tibble and show it.
-  unnest(tidied_model)
-gravier_data_nested
+# Fit a logistic regression to each gene ***Here***. 
+# modelling: outcome ~ log2_expr_lvl
+gravier_data_nested <- gravier_long %>% 
+  group_by(gene) %>% 
+  nest()
 
 
-gravier_data_long_nested <- gravier_data_nested %>%
-  filter(str_detect(term,"log2_expr_level"))
-gravier_data_long_nested
+# Define a formula for logistic regression
+formula <- formula(outcome ~ log2_expr_level)
 
-# Add beta-estimates and confidence intervals
+
+# Mutate to add models to each nested group
+gravier_data_n <- gravier_data_nested %>%
+  mutate(model = map(data, ~ glm(formula, data = ., 
+                                 family = binomial(link = "logit"))),
+         # Generate tidy data with beta estimates, std.errors, statistics and also p-values/add beta-estimates and confidence intervals
+         model_summary = map(model, broom::tidy, conf.int = TRUE)
+         )
+
+
+# model summary. 
+gravier_data_n$model_summary 
+
+# model 
+gravier_data_n$model
+
+# Okay.... we are up to here. 
+
+# gravier_data_long_nested <- gravier_data_nested %>%
+#  filter(str_detect(term,"log2_expr_level"))
+# gravier_data_long_nested
+
 # Add an indicator for whether the p-value was less than or equal to 0.05
+
+# That is your long modelled data,create a forest-plot of the slopes (beta1 estimates) and add 95% CI
+
 # Add code to the README showing short analysis with nice clear code.
-# That is your long modelled data,create a forest-plot of the slopes (beta1 estimates) 
-# and add 95% CI
+
