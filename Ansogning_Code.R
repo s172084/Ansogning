@@ -3,19 +3,19 @@ library(tidyverse)
 # Load the gravier data 
 # Note: It is a list
 
-# load the file into memory. 
+# 1. load the file into memory. 
 load(file = "data/_raw/gravier.RData")
 
-# Create a tibble from the gravier data. 
+# 2. Create a tibble from the gravier data. 
 ycol <- as_tibble(gravier$y)
 xmat <- gravier$x
 grav <- bind_cols(ycol, xmat)
 
-# Relocate the y column to the first column and name it outcome.
+# 3. Relocate the y column to the first column and name it outcome.
 gravier_not_dirty <- rename(grav, outcome = value)
 gravier_not_dirty 
 
-# Recode the outcome so that 0 is good and 1 is poor.
+# 4. Recode the outcome so that 0 is good and 1 is poor.
 gravier_clean <- gravier_not_dirty %>% 
   mutate(outcome = case_when(outcome == "good" ~ 0,
                              outcome == "poor" ~ 1))
@@ -25,7 +25,7 @@ View(gravier_clean)
 
 set.seed(101)
 
-# Choose 100 random genes. 
+# 5. Choose 100 random genes. 
 gravier_new_clean <- gravier_clean %>%
   select(1, sample(colnames(.)[-1], 100))
 
@@ -35,7 +35,7 @@ gravier_new_clean
 dim(gravier_new_clean)
 glimpse(gravier_new_clean)
 
-# From clean data, transform to long format. 
+# 6. From clean data, transform to long format. 
 head(gravier_new_clean)
 
 gravier_long <- gravier_new_clean %>% 
@@ -49,7 +49,7 @@ gravier_long
 head(gravier_long)
 
 
-# Fit a logistic regression to each gene
+# 7. Fit a logistic regression to each gene
 # modelling: outcome ~ log2_expr_lvl
 gravier_data_nested <- gravier_long %>% 
   group_by(gene) %>% 
@@ -85,7 +85,7 @@ gravier_data_birded <- gravier_data_n %>%
 
 gravier_data_birded
 
-# Add an indicator for whether the p-value was less than or equal to 0.05
+# 8. Add an indicator for whether the p-value was less than or equal to 0.05
 gravier_indicator <- gravier_data_birded %>%
   mutate(pval_indicator = case_when(
     p.value < 0.05 ~ "Less than 0.05", TRUE ~ "Greater or equal to 0.05"
@@ -93,8 +93,39 @@ gravier_indicator <- gravier_data_birded %>%
 
 gravier_indicator
 
-# That is your long modelled data
+# That is your long - modelled data. 
 # Create a forest-plot of the slopes (beta1 estimates) and add 95% CI
+
+
+# Create the forest plot using ggplot2
+forest_plot <- ggplot(data = gravier_indicator, 
+                      mapping = aes(x = estimate, y = gene)) +
+  geom_point(aes(color = p.value < 0.05), size = 4) +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high))+
+  scale_color_manual(values = c("FALSE" = "black", "TRUE" = "red"))+
+    labs(title = "Forest Plot",
+         x = "Estimate",
+         y = "Gene") +
+    theme_minimal() +
+    theme(panel.grid.major.y = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          legend.position = "none")
+
+
+
+
+
+forest_plot
+
+
+
+
+
+
+
+
+
+
 
 # Add code to the README showing short analysis with nice clear code.
 
