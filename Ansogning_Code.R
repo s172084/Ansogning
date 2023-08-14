@@ -113,7 +113,7 @@ forest_plot <- ggplot(data = forest_data,
   
   # set x axis values 
   scale_x_continuous(breaks = seq(-9, 9, by = 1)) +
-  labs(title = "TheForest Plot",
+  labs(title = "The Forest Plot",
        x = "estimate",
        y = "Gene",
        colour = "is_significant") +
