@@ -88,7 +88,7 @@ gravier_data_birded
 # 8. Add an indicator for whether the p-value was less than or equal to 0.05
 gravier_indicator <- gravier_data_birded %>%
   mutate(pval_indicator = case_when(
-    p.value < 0.05 ~ "Less than 0.05", TRUE ~ "Greater or equal to 0.05"
+    p.value < 0.05 ~ "Less than 0.05 (SIG)", TRUE ~ "Greater or equal to 0.05 (NotSig)"
   ))
 
 gravier_indicator
@@ -96,36 +96,30 @@ gravier_indicator
 # That is your long - modelled data. 
 # Create a forest-plot of the slopes (beta1 estimates) and add 95% CI
 
+forest_data <- gravier_indicator %>%
+  group_by(gene) %>% 
+  arrange(estimate)
+
+forest_data
 
 # Create the forest plot using ggplot2
-forest_plot <- ggplot(data = gravier_indicator, 
-                      mapping = aes(x = estimate, y = gene)) +
-  geom_point(aes(color = p.value < 0.05), size = 4) +
+forest_plot <- ggplot(data = forest_data, 
+                      mapping = aes(x = estimate, y = gene, color = pval_indicator)) +
+  geom_point(aes(color = pval_indicator), size = 2) +
   geom_errorbarh(aes(xmin = conf.low, xmax = conf.high))+
-  scale_color_manual(values = c("FALSE" = "black", "TRUE" = "red"))+
-    labs(title = "Forest Plot",
-         x = "Estimate",
-         y = "Gene") +
-    theme_minimal() +
-    theme(panel.grid.major.y = element_blank(),
-          panel.grid.minor.y = element_blank(),
-          legend.position = "none")
-
-
-
-
+  
+  # Add a line at the estimate
+  geom_vline(xintercept = 0, color = "gray40") +
+  
+  # set x axis values 
+  scale_x_continuous(breaks = seq(-9, 9, by = 1)) +
+  labs(title = "TheForest Plot",
+       x = "estimate",
+       y = "Gene",
+       colour = "is_significant") +
+  theme(legend.position = "bottom")+
+  theme(axis.text.y = element_text(size = 5, hjust = 0.5,vjust = 1,  angle = 15))
 
 forest_plot
 
-
-
-
-
-
-
-
-
-
-
 # Add code to the README showing short analysis with nice clear code.
-
