@@ -1,5 +1,15 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
 
 # Ansøgning
 
@@ -8,20 +18,19 @@
 
 The goal of Ansøgning is to show analysis of the **Gravier Data Set**
 
-The Author: Miss Oriade Latifah Simpson - MOLS -
+The Author: Miss Oriade Latifah Simpson - MOLS - 
 
-Date: August 2023
+Date: August 2023 
 
-This data is taken from
-<https://github.com/ramhiser/datamicroarray/wiki/Gravier-%282010%29>
+This data is taken from https://github.com/ramhiser/datamicroarray/wiki/Gravier-%282010%29
 
-------------------------------------------------------------------------
+---------------------------------------
 
-### Code
+### Code 
 
-The code and figure can be found below:
+The code and figure can be found  below: 
 
-``` r
+```{r written, eval=FALSE, include= TRUE}
 
 library(tidyverse)
 
@@ -152,11 +161,15 @@ forest_plot <- ggplot(data = forest_data,
 # Add code to the README showing short analysis with nice clear code.
 ```
 
-…. and also in the file called Ansogning_Code.R
+.... and also in the file called Ansogning_Code.R
 
-### Visualisation
+### Visualisation 
 
-<img src="GenePlot.png" width="1008" />
+
+```{r pressure, echo = FALSE}
+knitr::include_graphics('GenePlot.png')
+
+```
 
 If you encounter a clear bug, please file an issue with a minimal
 reproducible example on GitHub. For questions and other discussion,
