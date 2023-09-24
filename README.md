@@ -131,7 +131,9 @@ forest_data
 
 # Create the forest plot using ggplot2
 forest_plot <- ggplot(data = forest_data, 
-                      mapping = aes(x = estimate, y = gene, color = pval_indicator)) +
+                      mapping = aes(x = estimate, 
+                                    y = fct_reorder(gene, desc(estimate)),
+                                    color = pval_indicator)) +
   geom_point(aes(color = pval_indicator), size = 2) +
   geom_errorbarh(aes(xmin = conf.low, xmax = conf.high))+
   
@@ -147,7 +149,8 @@ forest_plot <- ggplot(data = forest_data,
   theme(legend.position = "bottom")+
   theme(axis.text.y = element_text(size = 5, hjust = 0.5,vjust = 1,  angle = 15))
 
-#forest_plot
+forest_plot
+
 
 # Add code to the README showing short analysis with nice clear code.
 ```
@@ -156,7 +159,7 @@ forest_plot <- ggplot(data = forest_data,
 
 ### Visualisation
 
-<img src="GenePlot.png" width="1008" />
+<img src="Forest.png" width="733" />
 
 If you encounter a clear bug, please file an issue with a minimal
 reproducible example on GitHub. For questions and other discussion,

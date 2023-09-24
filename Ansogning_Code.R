@@ -104,7 +104,9 @@ forest_data
 
 # Create the forest plot using ggplot2
 forest_plot <- ggplot(data = forest_data, 
-                      mapping = aes(x = estimate, y = gene, color = pval_indicator)) +
+                      mapping = aes(x = estimate, 
+                                    y = fct_reorder(gene, desc(estimate)),
+                                    color = pval_indicator)) +
   geom_point(aes(color = pval_indicator), size = 2) +
   geom_errorbarh(aes(xmin = conf.low, xmax = conf.high))+
   
